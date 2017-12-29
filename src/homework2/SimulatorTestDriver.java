@@ -1,6 +1,6 @@
 package homework2;
 
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class implements a testing driver for Simulator. The driver manages
@@ -15,7 +15,7 @@ public class SimulatorTestDriver {
 	 * @effects Constructs a new test driver.
 	 */
 	public SimulatorTestDriver() {
-        // TODO: Implement this constructor
+        simulators = new HashMap<>();
 	}
 
 	/**
@@ -25,7 +25,8 @@ public class SimulatorTestDriver {
 	 *          initially empty.
 	 */
 	public void createSimulator(String simName) {
-	    // TODO: Implement this method
+	    Simulator sim = new Simulator(simName);
+	    simulators.put(simName, sim);
 	}
 
 	/**
@@ -39,7 +40,26 @@ public class SimulatorTestDriver {
 	 *          the simulator named simName.
 	 */
 	public void addChannel(String simName, String channelName, double limit) {
-	    // TODO: Implement this method
+		Simulator sim;
+
+	    if (simName == null || !simulators.containsKey(simName) || channelName == null || limit < 0){
+			System.out.println("Illegal arguments");
+			return;
+		}
+
+		sim = simulators.get(simName);
+
+		Channel ch = new Channel(channelName, limit);
+		try {
+			sim.addPipe(channelName, ch);
+		}
+		catch (IllegalArgumentException ex){
+			System.out.println("Illegal arguments");
+		}
+		catch (UnsupportedOperationException ex){
+			System.out.println("Unsupported operation");
+		}
+
 	}
 
 	/**
@@ -52,7 +72,27 @@ public class SimulatorTestDriver {
 	 *          it to the simulator named simName.
 	 */
 	public void addParticipant(String simName, String participantName, double fee) {
-        // TODO: Implement this method
+		Simulator sim;
+
+		if (simName == null || !simulators.containsKey(simName) || participantName == null || fee < 0){
+			System.out.println("Illegal arguments");
+			return;
+		}
+
+		sim = simulators.get(simName);
+
+		Participant pr = new Participant(participantName, fee);
+		try {
+			sim.addFilter(participantName, pr);
+		}
+
+		catch (IllegalArgumentException ex){
+			System.out.println("Illegal arguments");
+		}
+		catch (UnsupportedOperationException ex){
+			System.out.println("Unsupported operation");
+		}
+
 	}
 
 	/**
@@ -67,7 +107,21 @@ public class SimulatorTestDriver {
 	 *          is the String edgeLabel.
 	 */
 	public void addEdge(String simName, String parentName, String childName, String edgeLabel) {
-        // TODO: Implement this method
+		if (simName == null || !simulators.containsKey(simName) || parentName == null || childName == null || edgeLabel == null){
+			System.out.println("Illegal arguments");
+			return;
+		}
+
+		Simulator sim = simulators.get(simName);
+		try {
+			sim.addEdge(parentName, childName, edgeLabel);
+		}
+		catch (IllegalArgumentException ex){
+			System.out.println("Illegal arguments");
+		}
+		catch (UnsupportedOperationException ex){
+			System.out.println("Unsupported operation");
+		}
 	}
 
 	/**
@@ -78,8 +132,20 @@ public class SimulatorTestDriver {
 	 *          simulator named simName.
 	 */
 	public void sendTransaction(String simName, String channelName, Transaction tx) {
-        // TODO: Implement this method
-    }
+		if (simName == null || !simulators.containsKey(simName) || channelName == null || tx == null) {
+			System.out.println("Illegal arguments");
+			return;
+		}
+
+        Simulator sim = simulators.get(simName);
+
+		try {
+			sim.sendTransaction(channelName, tx);
+		}
+		catch (IllegalArgumentException ex){
+			System.out.println("Illegal arguments");
+		}
+	}
 	
 	
 	/**
@@ -88,7 +154,34 @@ public class SimulatorTestDriver {
 	 *         channel named channelName in the simulator named simName.
 	 */
 	public String listContents(String simName, String channelName) {
-        // TODO: Implement this method
+		if (simName == null || !simulators.containsKey(simName) || channelName == null ) {
+			System.out.println("Illegal arguments");
+			return null;
+		}
+
+		Simulator sim = simulators.get(simName);
+		Channel ch;
+		String txVal = "";
+
+		try {
+			ch = (Channel) sim.getPipeObj(channelName);
+			List<Transaction> txList = ch.getTransactionList();
+			List<String> txListString = new ArrayList<String>();
+
+			for (Transaction tx: txList) {
+				txListString.add(String.valueOf(tx.getValue()));
+			}
+
+			txVal = String.join(" ", txListString);
+		}
+		catch (IllegalArgumentException ex){
+			System.out.println("Illegal arguments");
+		}
+		catch (UnsupportedOperationException ex){
+			System.out.println("Unsupported operation");
+		}
+
+		return txVal;
 	}
 
 	/**
@@ -96,7 +189,29 @@ public class SimulatorTestDriver {
 	 * @return The sum of all  Transaction values stored in the storage of the participant participantName in the simulator simName
 	 */
 	public double getParticipantBalace(String simName, String participantName) {
-        // TODO: Implement this method
+		if (simName == null || !simulators.containsKey(simName) || participantName == null ) {
+			System.out.println("Illegal arguments");
+			return -1;
+		}
+
+		Participant pr;
+		double balance = 0;
+		Simulator sim = simulators.get(simName);
+
+		try {
+			pr = (Participant) sim.getFilterObj(participantName);
+			balance = pr.getBalance();
+		}
+
+		catch (IllegalArgumentException ex){
+			System.out.println("Illegal arguments");
+		}
+
+		catch (UnsupportedOperationException ex){
+			System.out.println("Unsupported operation");
+		}
+
+		return balance;
 	}
 	
 	/**
@@ -105,7 +220,19 @@ public class SimulatorTestDriver {
 	 * @effects runs simulator named simName for a single time slice.
 	 */
 	public void simulate(String simName) {
-        // TODO: Implement this method
+		if (simName == null || !simulators.containsKey(simName)) {
+			System.out.println("Illegal arguments");
+			return;
+		}
+
+		Simulator sim = simulators.get(simName);
+		try {
+			sim.simulate();
+		}
+		catch (IllegalArgumentException ex){
+			System.out.println("Illegal arguments");
+		}
+
 	}
 
 	/**
@@ -115,7 +242,16 @@ public class SimulatorTestDriver {
 	 * @effects Prints the all edges.
 	 */
 	public void printAllEdges(String simName) {
-        // TODO: Implement this method
+		if (simName == null || !simulators.containsKey(simName)) {
+			System.out.println("Illegal arguments");
+			return;
+		}
+
+		Simulator sim = simulators.get(simName);
+		List<String> edgeListCpy = new ArrayList<>(sim.getEdgeList());
+		String edgeList = String.join(" ", edgeListCpy);
+
+		System.out.println("Edges names are:\n" + edgeList);
 	}
 
 }
