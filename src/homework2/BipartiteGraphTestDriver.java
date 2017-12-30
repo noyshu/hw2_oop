@@ -206,7 +206,6 @@ public class BipartiteGraphTestDriver {
         return graphs.get(graphName).getChildByEdgeLabel(parentName,edgeLabel);
     }
 
-    
     /**
      * @requires addEdge(graphName, str, childName, edgeLabel) for some
      * 			 string str
@@ -219,7 +218,7 @@ public class BipartiteGraphTestDriver {
             System.out.println("one of the labels is null");
             return null;
         }
-        return graphs.get(graphName).getChildByEdgeLabel(childName,edgeLabel);
+        return graphs.get(graphName).getParentByEdgeLabel(childName,edgeLabel);
     	
     	
     }

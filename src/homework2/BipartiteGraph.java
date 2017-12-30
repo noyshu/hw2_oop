@@ -229,7 +229,7 @@ public class BipartiteGraph<T>{
         else{
             nodes = whiteNodes;
         }
-        if(!nodes.get(parentName).containsIngoingEdge(edgeLabel)) {
+        if(!nodes.get(parentName).containsOutgoingEdge(edgeLabel)) {
             System.out.println("Parent Label does not have this outGoing Edge");
             return null;
         }

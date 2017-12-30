@@ -109,7 +109,7 @@ public class Node<T> {
      *@returns a Parent node of this node connected by edge labled edgeLabel or null if doesn't exists
      */
     public Node<T> getParentNodeByLabel(T edgeLable){
-        Iterator<Edge<T>> iter = outgoingEdges.iterator();
+        Iterator<Edge<T>> iter = ingoingEdges.iterator();
         while (iter.hasNext()){
             Edge tempEdge =  iter.next();
             if (tempEdge.getLabel().equals(edgeLable)){
@@ -122,7 +122,7 @@ public class Node<T> {
      *@returns a Child node of this node connected by edge labled edgeLabel or null if doesn't exists
      */
     public Node<T> getChildNodeByLabel(T edgeLable){
-        Iterator<Edge<T>> iter = ingoingEdges.iterator();
+        Iterator<Edge<T>> iter = outgoingEdges.iterator();
         while (iter.hasNext()){
             Edge tempEdge =  iter.next();
             if (tempEdge.getLabel().equals(edgeLable)){
