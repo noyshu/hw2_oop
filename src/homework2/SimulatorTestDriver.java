@@ -15,6 +15,7 @@ public class SimulatorTestDriver {
 	 * @effects Constructs a new test driver.
 	 */
 	public SimulatorTestDriver() {
+		// init simulators data structure
         simulators = new HashMap<>();
 	}
 
@@ -25,8 +26,9 @@ public class SimulatorTestDriver {
 	 *          initially empty.
 	 */
 	public void createSimulator(String simName) {
-	    Simulator sim = new Simulator(simName);
-	    simulators.put(simName, sim);
+	    Simulator simulator = new Simulator(simName);
+	    // insert to map
+	    simulators.put(simName, simulator);
 	}
 
 	/**
@@ -40,25 +42,26 @@ public class SimulatorTestDriver {
 	 *          the simulator named simName.
 	 */
 	public void addChannel(String simName, String channelName, double limit) {
-		Simulator sim;
+		Simulator simulator;
 
-	    if (simName == null || !simulators.containsKey(simName) || channelName == null || limit < 0){
+	    if (simName == null || !simulators.containsKey(simName) || 
+	    		channelName == null || limit < 0){
 			System.out.println("Illegal arguments");
+			
 			return;
 		}
 
-		sim = simulators.get(simName);
+	    // extract appropriate simulator from map
+		simulator = simulators.get(simName);
 
-		Channel ch = new Channel(channelName, limit);
+		Channel channel = new Channel(channelName, limit);
 		try {
-			sim.addPipe(channelName, ch);
+			simulator.addPipe(channelName, channel);
 		}
-		catch (IllegalArgumentException ex){
+		catch (Exception exception){
 			System.out.println("Illegal arguments");
 		}
-		catch (UnsupportedOperationException ex){
-			System.out.println("Unsupported operation");
-		}
+	
 
 	}
 
@@ -72,26 +75,25 @@ public class SimulatorTestDriver {
 	 *          it to the simulator named simName.
 	 */
 	public void addParticipant(String simName, String participantName, double fee) {
-		Simulator sim;
+		Simulator simulator;
 
-		if (simName == null || !simulators.containsKey(simName) || participantName == null || fee < 0){
+		if (simName == null || !simulators.containsKey(simName) ||
+				participantName == null || fee < 0){
 			System.out.println("Illegal arguments");
 			return;
 		}
 
-		sim = simulators.get(simName);
+		simulator = simulators.get(simName);
 
-		Participant pr = new Participant(participantName, fee);
+		Participant participant = new Participant(participantName, fee);
 		try {
-			sim.addFilter(participantName, pr);
+			simulator.addFilter(participantName, participant);
 		}
 
-		catch (IllegalArgumentException ex){
+		catch (Exception ex){
 			System.out.println("Illegal arguments");
 		}
-		catch (UnsupportedOperationException ex){
-			System.out.println("Unsupported operation");
-		}
+	
 
 	}
 
@@ -107,21 +109,20 @@ public class SimulatorTestDriver {
 	 *          is the String edgeLabel.
 	 */
 	public void addEdge(String simName, String parentName, String childName, String edgeLabel) {
-		if (simName == null || !simulators.containsKey(simName) || parentName == null || childName == null || edgeLabel == null){
+		if (simName == null || !simulators.containsKey(simName) ||
+				parentName == null || childName == null || edgeLabel == null){
 			System.out.println("Illegal arguments");
 			return;
 		}
 
-		Simulator sim = simulators.get(simName);
+		Simulator simulator = simulators.get(simName);
 		try {
-			sim.addEdge(parentName, childName, edgeLabel);
+			simulator.addEdge(parentName, childName, edgeLabel);
 		}
-		catch (IllegalArgumentException ex){
+		catch (Exception ex){
 			System.out.println("Illegal arguments");
 		}
-		catch (UnsupportedOperationException ex){
-			System.out.println("Unsupported operation");
-		}
+		
 	}
 
 	/**
@@ -132,15 +133,16 @@ public class SimulatorTestDriver {
 	 *          simulator named simName.
 	 */
 	public void sendTransaction(String simName, String channelName, Transaction tx) {
-		if (simName == null || !simulators.containsKey(simName) || channelName == null || tx == null) {
+		if (simName == null || !simulators.containsKey(simName) ||
+				channelName == null || tx == null) {
 			System.out.println("Illegal arguments");
 			return;
 		}
 
-        Simulator sim = simulators.get(simName);
+        Simulator simulator = simulators.get(simName);
 
 		try {
-			sim.sendTransaction(channelName, tx);
+			simulator.sendTransaction(channelName, tx);
 		}
 		catch (IllegalArgumentException ex){
 			System.out.println("Illegal arguments");
@@ -159,29 +161,27 @@ public class SimulatorTestDriver {
 			return null;
 		}
 
-		Simulator sim = simulators.get(simName);
-		Channel ch;
-		String txVal = "";
+		Simulator simulator = simulators.get(simName);
+		Channel channel;
+		String textVal = "";
 
 		try {
-			ch = (Channel) sim.getPipeObj(channelName);
-			List<Transaction> txList = ch.getTransactionList();
+			channel = (Channel) simulator.getPipeObj(channelName);
+			List<Transaction> txList = channel.getTransactionList();
 			List<String> txListString = new ArrayList<String>();
 
 			for (Transaction tx: txList) {
 				txListString.add(String.valueOf(tx.getValue()));
 			}
 
-			txVal = String.join(" ", txListString);
+			textVal = String.join(" ", txListString);
 		}
-		catch (IllegalArgumentException ex){
+		catch (Exception ex){
 			System.out.println("Illegal arguments");
 		}
-		catch (UnsupportedOperationException ex){
-			System.out.println("Unsupported operation");
-		}
+		
 
-		return txVal;
+		return textVal;
 	}
 
 	/**
@@ -194,21 +194,17 @@ public class SimulatorTestDriver {
 			return -1;
 		}
 
-		Participant pr;
+		Participant participant;
 		double balance = 0;
-		Simulator sim = simulators.get(simName);
+		Simulator simulator = simulators.get(simName);
 
 		try {
-			pr = (Participant) sim.getFilterObj(participantName);
-			balance = pr.getBalance();
+			participant = (Participant) simulator.getFilterObj(participantName);
+			balance = participant.getBalance();
 		}
 
-		catch (IllegalArgumentException ex){
+		catch (Exception ex){
 			System.out.println("Illegal arguments");
-		}
-
-		catch (UnsupportedOperationException ex){
-			System.out.println("Unsupported operation");
 		}
 
 		return balance;
@@ -225,9 +221,9 @@ public class SimulatorTestDriver {
 			return;
 		}
 
-		Simulator sim = simulators.get(simName);
+		Simulator simulator = simulators.get(simName);
 		try {
-			sim.simulate();
+			simulator.simulate();
 		}
 		catch (IllegalArgumentException ex){
 			System.out.println("Illegal arguments");
@@ -247,11 +243,11 @@ public class SimulatorTestDriver {
 			return;
 		}
 
-		Simulator sim = simulators.get(simName);
-		List<String> edgeListCpy = new ArrayList<>(sim.getEdgeList());
-		String edgeList = String.join(" ", edgeListCpy);
+		Simulator simulator = simulators.get(simName);
+		List<String> edgeListCopy = new ArrayList<>(simulator.getEdgeList());
+		String edgesList = String.join(" ", edgeListCopy);
 
-		System.out.println("Edges names are:\n" + edgeList);
+		System.out.println("Edges names are:\n" + edgesList);
 	}
 
 }

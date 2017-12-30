@@ -1,47 +1,75 @@
 package homework2;
+import java.util.*;
 
 /**
- * the edge class is sn abstraction for a directed graph edge with a label of the
- * general type T.
- * it's properties are: label,  beginNode, endNode.
- **/
+ * This class implements a edge object for graph.
+ * Each edge has start node and end node and has a label.
+ */
+
 public class Edge<T> {
+
     private T label;
-    private Node<T>  beginNode;
-    private Node<T>  endNode;
+    private Node<T> startNode;
+    private Node<T> endNode;
 
     /**
-     * Abs. Function: represents a directed graph  edge  with a label a beginning node and end node
-     *
-     * Rep. Invariant: beginNode != endNode
-     *
-
-     * /**
-     *
-     * @effects Initializes this with a given label.
+     * @modifies this
+     * @effects Constructs a new edge.
      */
-    public Edge(T Label, Node beginNode, Node endMode){
-        this.label = Label;
-        this.beginNode = beginNode;
-        this.endNode = endMode;
+    public Edge (T label, Node startNode, Node endNode) {
+        this.label = label;
+        this.startNode = startNode;
+        this.endNode = endNode;
     }
 
+    /**
+     * @return this.label
+     */
     public T getLabel() {
         return label;
     }
-    public Node<T> getBeginNode() {
-        return beginNode;
-    }
+
+    /**
+     * @return this.endNode
+     */
     public Node<T> getEndNode() {
         return endNode;
     }
-    public void setBeginNode(Node<T> beginNode) {
-        this.beginNode = beginNode;
+
+    /**
+     * @return this.startNode
+     */
+    public Node<T> getStartNode() {
+        return startNode;
     }
-    public void setEndNode(Node<T> endNode) {
-        this.endNode = endNode;
-    }
+
+    /**
+     * @modifies this
+     * @effects set edge label.
+     */
     public void setLabel(T label) {
+        if (label == null)
+            throw new IllegalArgumentException(String.format("can't set label to null"));
         this.label = label;
+    }
+
+    /**
+     * @modifies this
+     * @effects set edge start node.
+     */
+    public void setStartNode(Node<T> startNode) {
+        if (startNode == null)
+            throw new IllegalArgumentException(String.format("can't set start node of edge to null"));
+        this.startNode = startNode;
+    }
+
+    /**
+     * @modifies this
+     * @effects Set edge end node.
+     */
+    public void setEndNode(Node<T> endNode) {
+        if (endNode == null)
+            throw new IllegalArgumentException(String.format("can't set end node of edge to null"));
+        this.endNode = endNode;
     }
 }

@@ -35,13 +35,6 @@ public class Participant extends Filter<String, Transaction> {
         this.fee = fee;
     }
 
-
-    /**
-     * @return return this.label
-     */
-    public String getLabel() {
-        return this.getLabel();
-    }
     
     /**
      * @return return participant balance
@@ -54,29 +47,18 @@ public class Participant extends Filter<String, Transaction> {
      * @return return storage buffer
      */
     public List<Transaction> getStorageBuff() {
-        List<Transaction> list = new ArrayList<>(this.storageBuffer);
-        return list;
+        List<Transaction> bufferList = new ArrayList<>(this.storageBuffer);
+        return bufferList;
     }
 
-    /**
-     * @modifies this
-     * @effects adds balance
-     */
-    public void addBalance(double balance){
-        this.balance += balance;
-    }
-
-    public void addToBuffer(List<Transaction> list){
-        storageBuffer.addAll(list);
-    }
     /**
      * @modifies this
      * @requires graph !=null
      * @effects if there is transaction with different destination
      *  take fee from it add pass it to the next channel
      */
-    public void simulate(BipartiteGraph<String> graph){
-    	if(graph == null)
+    public void simulate(BipartiteGraph<String> givenGraph){
+    	if(givenGraph == null)
     	{
     		return;
     	}
@@ -84,43 +66,62 @@ public class Participant extends Filter<String, Transaction> {
         List<Object> listChildChannels;
 
         try {
-            listChildChannels = graph.getChildObj(this.getLabel());
+            listChildChannels = givenGraph.getChildObj(this.getLabel());
         }
         catch (Exception exception) {
             throw new IllegalArgumentException("Illegal arguments");
         }
 
         if (listChildChannels == null)
+        {
             return;
+        }
 
         //one channel child in the list
         int i = 0;
-        Channel channel = (Channel)listChildChannels.get(0);
+        Channel childChannel = (Channel)listChildChannels.get(0);
         // TODO - not >= ?
         while (this.storageBuffer.size() > i){
             
-        	Transaction tx = this.storageBuffer.get(i);
+        	Transaction curTx = this.storageBuffer.get(i);
             // if dest is this, continue
-        	if(tx.getDest().equals(this.getLabel())){
+        	if(curTx.getDest().equals(this.getLabel())){
                 i++;
                 continue;
             }
 
         	// in case we cant take the whole fee, we dont pass it
-            if(this.fee > tx.getValue()){
+            if(this.fee > curTx.getValue()){
                 i++;
                 continue;
             }
 
-            double val = tx.getValue()- this.fee;
-            String dest = tx.getDest();
+            double val = curTx.getValue()- this.fee;
+            String dest = curTx.getDest();
             Transaction newTx = new Transaction(dest, val);
-            if(channel.passOperationObj(newTx)){
-                balance -=tx.getValue();
-                this.storageBuffer.remove(tx);
+            // in case transaction succeeded
+            if(childChannel.passOperationObj(newTx)){
+                balance -=curTx.getValue();
+                this.storageBuffer.remove(curTx);
             } else {
                 i++;
             }
         }
     }
+    /**
+     * @modifies this
+     * @effects adds balance
+     */
+    public void addBalance(double balance_){
+        this.balance += balance_;
+    }
+
+    /**
+     * @modifies this
+     * @effects adds transactions to storage buffer
+     */
+    public void addToBuffer(List<Transaction> newList){
+        storageBuffer.addAll(newList);
+    }
+
 }

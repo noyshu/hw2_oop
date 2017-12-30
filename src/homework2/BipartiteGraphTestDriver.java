@@ -15,7 +15,7 @@ public class BipartiteGraphTestDriver {
      * @effects Constructs a new test driver.
      */
     public BipartiteGraphTestDriver () {
-       graphs = new HashMap<String, BipartiteGraph<String>>();
+    	graphs = new HashMap<String, BipartiteGraph<String>>();
     }
 
     
@@ -26,16 +26,8 @@ public class BipartiteGraphTestDriver {
      * 			empty.
      */
     public void createGraph(String graphName) {
-        if(graphName == null){
-            System.out.println("graph name is null");
-            return;
-        }
-        if(graphs.containsKey(graphName){
-            System.out.println("graph named " + graphName + "already exists, not adding graph");
-            return;
-        }
-        graphs.put(graphName,new BipartiteGraph<String>);
-        return;
+    	BipartiteGraph bGraph = new BipartiteGraph(graphName);        
+    	graphs.put(graphName, bGraph);
     }
 
     /**
@@ -49,19 +41,24 @@ public class BipartiteGraphTestDriver {
      * 			graph named graphName.
      */
     public void addBlackNode(String graphName, String nodeName) {
-        if(graphName == null || nodeName == null ){
-            System.out.println("graph name or node name is null");
+    	if(graphName == null || !(graphs.containsKey(graphName))) {
+            System.out.println("Illegal arguments");
             return;
+    	}
+
+    	try {
+            graphs.get(graphName).addBlackNode(nodeName, null);
         }
-        if(!graphs.containsKey(graphName)){
-            System.out.println("graph name or node name is null");
-            return;
+        catch (IllegalArgumentException ex){
+            System.out.println("Illegal arguments");
         }
-        graphs.get(graphName).addBlackNode(nodeName);
-        return;
+        catch (UnsupportedOperationException ex){
+            System.out.println("Unsupported operation");
+        }
+
+
     }
 
-    
     /**
      * @requires createGraph(graphName)
      *           && nodeName != null
@@ -73,17 +70,20 @@ public class BipartiteGraphTestDriver {
      * 			graph named graphName.
      */
     public void addWhiteNode(String graphName, String nodeName) {
-    	//TODO: Implement this method
-        if(graphName == null || nodeName == null ){
-            System.out.println("graph name or node name is null");
+        if(graphName == null || !(graphs.containsKey(graphName))) {
+            System.out.println("Illegal arguments");
             return;
         }
-        if(!graphs.containsKey(graphName)){
-            System.out.println("graph name or node name is null");
-            return;
+
+        try {
+            graphs.get(graphName).addWhiteNode(nodeName, null);
         }
-        graphs.get(graphName).addWhiteNode(nodeName);
-        return;
+        catch (IllegalArgumentException ex){
+            System.out.println("Illegal arguments");
+        }
+        catch (UnsupportedOperationException ex){
+            System.out.println("Unsupported operation");
+        }
     }
 
     /**
@@ -103,84 +103,142 @@ public class BipartiteGraphTestDriver {
     public void addEdge(String graphName,
     					String parentName, String childName, 
                         String edgeLabel) {
-    	if (graphName == null || parentName == null || childName == null || edgeLabel == null){
-    	    System.out.println("one of the labels is null");
-    	    return;
-        }
-        if (!graphs.containsKey(graphName)){
-            System.out.println("graph label doesn't exists");
+
+        Node parent, child;
+        BipartiteGraph graph;
+        if (edgeLabel == null || parentName == null || childName == null) {
+            System.out.println("Illegal arguments");
             return;
         }
-        graphs.get(graphName).addEdge(edgeLabel);
-    	return;
+
+        if (!graphs.containsKey(graphName)) {
+            System.out.println("Illegal arguments");
+            return;
+        }
+
+        graph = graphs.get(graphName);
+
+        try {
+            graph.addEdge(parentName, childName, edgeLabel);
+        }
+        catch (IllegalArgumentException ex){
+            System.out.println("Illegal arguments");
+        }
+        catch (UnsupportedOperationException ex){
+            System.out.println("Unsupported operation");
+        }
     }
 
+    
     /**
      * @requires createGraph(graphName)
      * @return a space-separated list of the names of all the black nodes
      * 		   in the graph graphName, in alphabetical order.
      */
     public String listBlackNodes(String graphName) {
-        if (!graphs.containsKey(graphName)){
-            System.out.println("graph with this label does not exist");
-            return ;
+    	if (graphName == null || !graphs.containsKey(graphName)) {
+            System.out.println("Illegal arguments");
+            return "";
         }
-        return graphs.get(graphName).getBlackNodes();
+
+        List<Node<String>> blackNodes = graphs.get(graphName).getBlackNodes();
+        List<String> blackListString = new ArrayList<String>();
+        String blackNodesNames = new String("");
+
+        for (int i = 0; i < blackNodes.size(); i++) {
+            blackListString.add(blackNodes.get(i).getLabel());
+        }
+
+        Collections.sort(blackListString, String.CASE_INSENSITIVE_ORDER);
+        
+        for (int i = 0; i < blackListString.size(); i++) {
+        	if (i < blackListString.size() - 1)
+        		blackNodesNames = blackNodesNames.concat(blackListString.get(i)+" ");
+        	else
+        		blackNodesNames = blackNodesNames.concat(blackListString.get(i));
+        }
+        return blackNodesNames;
     }
 
-    
     /**
      * @requires createGraph(graphName)
      * @return a space-separated list of the names of all the white nodes
      * 		   in the graph graphName, in alphabetical order.
      */
     public String listWhiteNodes(String graphName) {
-        if (graphName == null){
-            System.out.println("graph name is null");
-            return ;
+    	if (graphName == null || !graphs.containsKey(graphName)) {
+            System.out.println("Illegal arguments");
+            return "";
         }
-        if (!graphs.containsKey(graphName)){
-            System.out.println("graph with this label does not exist");
-            return ;
+
+        List<Node<String>> whiteNode = graphs.get(graphName).getWhiteNodes();
+        List<String> whiteListString = new ArrayList<String>();
+        String whiteNodesNames = new String("");
+
+        for (int i = 0; i < whiteNode.size(); i++) {
+            whiteListString.add(whiteNode.get(i).getLabel());
         }
-        return graphs.get(graphName).getWhiteNodes();
+
+        Collections.sort(whiteListString, String.CASE_INSENSITIVE_ORDER);
+
+        for (int i = 0; i < whiteListString.size(); i++) {
+        	if (i<whiteListString.size()-1)
+        		whiteNodesNames = whiteNodesNames.concat(whiteListString.get(i)+" ");
+        	else
+        		whiteNodesNames = whiteNodesNames.concat(whiteListString.get(i));
+        }
+            
+        return whiteNodesNames;
     }
+
+    
     /**
      * @requires createGraph(graphName) && createNode(parentName)
      * @return a space-separated list of the names of the children of
      * 		   parentName in the graph graphName, in alphabetical order.
      */
     public String listChildren(String graphName, String parentName) {
-        if (graphName == null || parentName == null){
-            System.out.println("one of the labels is null");
+
+        if (graphName == null || !graphs.containsKey(graphName)) {
+            System.out.println("Illegal arguments");
             return null;
         }
-        if(!graphs.containsKey(graphName)){
-            System.out.println("graph does not exist");
-            return null;
-        }
-        return graphs.get(graphName).getNodeChildren(parentName);
+
+        BipartiteGraph graph = graphs.get(graphName);
+
+        List<String> childList = graphs.get(graphName).getChildList(parentName);
+        List<String> childListCpy = new ArrayList<>(childList);
+        String childNames;
+
+        Collections.sort(childListCpy, String.CASE_INSENSITIVE_ORDER);
+        childNames = String.join(" ", childListCpy);
+
+        return childNames;
     }
 
-    
     /**
      * @requires createGraph(graphName) && createNode(childName)
      * @return a space-separated list of the names of the parents of
      * 		   childName in the graph graphName, in alphabetical order.
      */
     public String listParents(String graphName, String childName) {
-        if (graphName == null || childName == null){
-            System.out.println("one of the labels is null");
-            return null;
+        if (graphName == null || !graphs.containsKey(graphName)) {
+            System.out.println("Illegal arguments");
+            return "";
         }
-        if(!graphs.containsKey(graphName)){
-            System.out.println("graph does not exist");
-            return null;
-        }
-        return graphs.get(graphName).getNodeParents(childName);
+
+        BipartiteGraph graph = graphs.get(graphName);
+
+        List<String> parentList = graphs.get(graphName).getParentList(childName);
+        List<String> parentListCpy = new ArrayList<String>(parentList);
+        String parentNames;
+
+        Collections.sort(parentListCpy, String.CASE_INSENSITIVE_ORDER);
+        parentNames = String.join(" ", parentListCpy);
+
+        return parentNames;
     }
 
-    
     /**
      * @requires addEdge(graphName, parentName, str, edgeLabel) for some
      * 			 string str
@@ -189,11 +247,31 @@ public class BipartiteGraphTestDriver {
      */
     public String getChildByEdgeLabel(String graphName, String parentName,
     								   String edgeLabel) {
-    	if(graphName == null || parentName == null || edgeLabel == null){
-            System.out.println("one of the labels is null");
-            return null;
+        String childName;
+
+        if (graphName == null || !graphs.containsKey(graphName)) {
+            System.out.println("Illegal arguments");
         }
-        return graphs.get(graphName).
+
+        if (parentName == null) {
+            System.out.println("Illegal arguments");
+        }
+
+        BipartiteGraph graph = graphs.get(graphName);
+
+        try {
+            childName = (String) (graph.getChildByEdgeLabel(parentName, edgeLabel));
+        }
+        catch (IllegalArgumentException ex){
+            System.out.println("Illegal arguments");
+            return "";
+        }
+        catch (UnsupportedOperationException ex){
+            System.out.println("Unsupported operation");
+            return "";
+        }
+
+        return childName;
     }
 
     
@@ -205,8 +283,36 @@ public class BipartiteGraphTestDriver {
      */
     public String getParentByEdgeLabel(String graphName, String childName,
     									String edgeLabel) {
-    	//TODO: Implement this method
-    	
-    	
+        String parentName;
+        if (graphName == null){
+            System.out.println("Illegal arguments");
+            return "";
+        }
+
+        if (!graphs.containsKey(graphName)) {
+            System.out.println("Illegal arguments");
+            return "";
+        }
+
+        if (childName == null) {
+            System.out.println("child name is null");
+            return "";
+        }
+
+        BipartiteGraph graph = graphs.get(graphName);
+
+        try {
+            parentName = (String)(graph.getParentByEdgeLabel(childName, edgeLabel));
+        }
+        catch (IllegalArgumentException ex){
+            System.out.println("Illegal arguments");
+            return "";
+        }
+        catch (UnsupportedOperationException ex){
+            System.out.println("Unsupported operation");
+            return "";
+        }
+
+        return parentName;
     }
 }
