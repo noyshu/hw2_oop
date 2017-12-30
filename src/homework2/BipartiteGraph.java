@@ -3,6 +3,7 @@ package homework2;
 import java.util.*;
 import java.util.stream.Collectors;
 
+
 /**
  * the BipartiteGraph class is sn abstraction for a directed black and white graph with Nodes and Edges
  * with labels of the general type T.
@@ -24,15 +25,15 @@ public class BipartiteGraph<T>{
      *edges from white nodes can only go to black nodes and viceversa
  **/
     public void checkRep(){
-        Iterator<Map.Entry<T,Node<T>>> iter = blackNodes.entrySet().iterator();
-        while (iter.hasNext()){
-            Map.Entry<T, Node<T>> entry = iter.next();
+        Iterator<Map.Entry<T,Node<T>>> blackIter = blackNodes.entrySet().iterator();
+        while (blackIter.hasNext()){
+            Map.Entry<T, Node<T>> entry = blackIter.next();
                 assert(!entry.getValue().checkDupLabel());
                 assert(!entry.getValue().checkDupParentOrChildNode());
             }
-         iter = whiteNodes.entrySet().iterator();
-        while (iter.hasNext()){
-            Map.Entry<T, Node<T>> entry = iter.next();
+        Iterator<Map.Entry<T,Node<T>>> whiteIter= whiteNodes.entrySet().iterator();
+        while (whiteIter.hasNext()){
+            Map.Entry<T, Node<T>> entry = whiteIter.next();
             assert (!entry.getValue().checkDupLabel());
             assert(!entry.getValue().checkDupParentOrChildNode());
         }
@@ -50,12 +51,12 @@ public class BipartiteGraph<T>{
      * @return true if the Node was succefully added to the graph,false if it wasn't
      *
      */
-   public boolean addBlackNode(T label){
+   public boolean addBlackNode(T label, Object obj){
         if(nodeLabelExists(label)){
             System.out.println("trying to add a black Node, but its label already exists in the graph");
             return false;
         }
-        Node<T> node = new Node(label);
+        Node<T> node = new Node(label,obj);
         blackNodes.put(label,node);
         checkRep();
         return true;
@@ -65,12 +66,12 @@ public class BipartiteGraph<T>{
      * @return true if the Node was succefully added to the graph,false if it wasn't
      *
      */
-    public boolean addWhiteNode(T label){
+    public boolean addWhiteNode(T label, Object obj){
         if(nodeLabelExists(label)){
             System.out.println("trying to add a white Node, but its label allready exists in the graph");
             return false;
         }
-        Node<T> node = new Node<>(label);
+        Node<T> node = new Node<>(label, obj);
         whiteNodes.put(label,node);
         checkRep();
         return true;
@@ -109,10 +110,10 @@ public class BipartiteGraph<T>{
        else{
            return;
        }
-       if (parentNode.cointainsOutgoingEdge(edgeLabel) || childNode.cointainsIngoingEdge(edgeLabel)){
+       if (parentNode.containsOutgoingEdge(edgeLabel) || childNode.containsIngoingEdge(edgeLabel)){
            return;
        }
-       Edge<T> edge = new Edge(edgeLabel,childNode,parentNode);
+       Edge<T> edge = new Edge(edgeLabel,parentNode,childNode);
        parentNode.addOutgoingEdge(edge);
        childNode.addIngoingEdge(edge);
        checkRep();
@@ -153,7 +154,7 @@ public class BipartiteGraph<T>{
         Node curNode = nodes.get(nodeLabel);
         Iterator<Edge> iter = curNode.getOutgoingEdges().iterator();
         while (iter.hasNext()){
-            retList.add(nodes.get(iter.next().getEndNode()));
+            retList.add(iter.next().getEndNode());
         }
         return retList;
     }
@@ -179,7 +180,7 @@ public class BipartiteGraph<T>{
         Node curNode = nodes.get(nodeLabel);
         Iterator<Edge> iter = curNode.getIngoingEdges().iterator();
         while (iter.hasNext()){
-            retList.add(nodes.get(iter.next().getBeginNode()));
+            retList.add(iter.next().getBeginNode());
         }
         return retList;
     }
@@ -200,12 +201,94 @@ public class BipartiteGraph<T>{
         else{
             nodes = whiteNodes;
         }
-        if(!nodes.get(childName).cointainsIngoingEdge(edgeLabel)) {
+        if(!nodes.get(childName).containsIngoingEdge(edgeLabel)) {
             System.out.println("child Label does not have this outGoing Edge");
             return null;
         }
         return nodes.get(childName).getParentNodeByLabel(edgeLabel).getLabel();
     }
+    /**
+     * @requires addEdge(edgeLabel,parentName ,childName)
+     * @return the name of the child of ParentName that is connected by the
+     * 		   edge labeled edgeLabel, in the graph
+     */
+    /**
+     * @requires addEdge(edgeLabel,parentLabel ,childLable)
+     * @return the name of the parent of childName that is connected by the
+     * 		   edge labeled edgeLabel, in the graph
+     */
+    public T getChildByEdgeLabel(T parentName, T edgeLabel) {
+        if(!nodeLabelExists(parentName)){
+            System.out.println("parent Label does not exist in the graph");
+            return null;
+        }
+        Map<T, Node<T>> nodes;
+        if(blackNodes.containsKey(parentName)){
+            nodes = blackNodes;
+        }
+        else{
+            nodes = whiteNodes;
+        }
+        if(!nodes.get(parentName).containsIngoingEdge(edgeLabel)) {
+            System.out.println("Parent Label does not have this outGoing Edge");
+            return null;
+        }
+        return nodes.get(parentName).getChildNodeByLabel(edgeLabel).getLabel();
+    }
 
+    /**
+     * @requires nodeLabel != null and node names nodeLabel exists in the graph
+     * @return the name of the child of ParentName that is connected by the
+     * 		   edge labeled edgeLabel, in the graph
+     */
+    public Node<T> getNode(T nodeLabel) {
+        if(!nodeLabelExists(nodeLabel)){
+            System.out.println("Label does not exist in the graph");
+            return null;
+        }
+        Map<T, Node<T>> nodes;
+        if(blackNodes.containsKey(nodeLabel)){
+            nodes = blackNodes;
+        }
+        else{
+            nodes = whiteNodes;
+        }
+        return nodes.get(nodeLabel);
+    }
+    /**
+     * @requires nodeLabel != null and node names nodeLabel exists in the graph
+     * @return the object of the node named nodeLabel
+     */
+    public Object getNodeObj(T nodeLabel){
+        return getNode(nodeLabel).getObject();
+    }
 
+    /**
+     * @returns list of all  black nodes's objects
+     */
+    public List<Object> getBlackNodeObj() {
+        checkRep();
+        return getBlackNodeList().stream().map(u -> u.getObject()).collect(Collectors.toList());
+    }
+    /**
+     * @returns list of all  white nodes's objects
+     */
+    public List<Object> getWhiteNodeObj() {
+        checkRep();
+        return getWhiteNodeList().stream().map(u -> u.getObject()).collect(Collectors.toList());
+    }
+    /**
+     * @returns list of all  of the objects that the node named nodeLabel's children nodes hold
+     */
+    public List<Object> getChildObj(T nodeLabel){
+        checkRep();
+        return getNodeChildren(nodeLabel).stream().map(u -> u.getObject()).collect(Collectors.toList());
+    }
+    /**
+     * @returns list of all  of the objects that the node named nodeLabel's children nodes hold
+     */
+    public  List<Object> getParentObj(T nodeLabel){
+        checkRep();
+        return getNodeParents(nodeLabel).stream().map(u -> u.getObject()).collect(Collectors.toList());
+    }
 }

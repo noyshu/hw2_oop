@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
  **/
 public class Node<T> {
     private T label;
+    private Object object;
     private ArrayList<Edge<T>> ingoingEdges;
     private ArrayList<Edge<T>> outgoingEdges;
     /**
@@ -24,16 +25,25 @@ public class Node<T> {
      *
      * @effects Initializes this with a given label.
      */
-    public Node(T label){
+    public Node(T label, Object obj){
         this.label = label;
-        ingoingEdges = new ArrayList<Edge<T>>();
-        outgoingEdges = new  ArrayList<Edge<T>>();
+        object = obj;
+        ingoingEdges = new ArrayList<>();
+        outgoingEdges = new  ArrayList<>();
     }
      /**
+     *
+     * @returns a node's object
+     */
+    public Object getObject() {
+        return object;
+    }
+    /**
      *@requiers edgeLable != Null
      * @returns true if an edge with the same label exists in this list and false otherwise
      */
-    public boolean cointainsOutgoingEdge(T edgeLabel){
+
+    public boolean containsOutgoingEdge(T edgeLabel){
         Iterator<Edge<T>> iter = outgoingEdges.iterator();
         while (iter.hasNext()){
             if (iter.next().getLabel().equals(edgeLabel)){
@@ -46,10 +56,10 @@ public class Node<T> {
      *@requiers edgeLable != Null
      * @returns true if an edge with the same label exists in this list and false otherwise
      */
-    public boolean cointainsIngoingEdge (T edgeLable){
+    public boolean containsIngoingEdge (T edgeLabel){
         Iterator<Edge<T>> iter = ingoingEdges.iterator();
         while (iter.hasNext()){
-            if (iter.next().getLabel().equals(edgeLable)){
+            if (iter.next().getLabel().equals(edgeLabel)){
                 return true;
             }
         }
@@ -60,7 +70,11 @@ public class Node<T> {
      * @moddifies adds edge to outgoingEdges
      */
     public void addOutgoingEdge(Edge<T> edge){
-        if(edge == null || cointainsIngoingEdge(edge.getLabel())){
+        if(edge == null || containsOutgoingEdge(edge.getLabel())){
+            return;
+        }
+        if(!edge.getBeginNode().getLabel().equals(getLabel())){
+            System.out.println("trying to add edge with wrong begin node");
             return;
         }
         outgoingEdges.add(edge);
@@ -70,10 +84,14 @@ public class Node<T> {
      * @moddifies adds edge to  ingoingEdges
      */
     public void addIngoingEdge(Edge<T> edge){
-        if(edge == null || cointainsIngoingEdge(edge.getLabel())){
+        if(edge == null || containsIngoingEdge(edge.getLabel())){
             return;
         }
-        outgoingEdges.add(edge);
+        if(!edge.getEndNode().getLabel().equals(getLabel())){
+            System.out.println("trying to add edge with wrong begin node");
+            return;
+        }
+        ingoingEdges.add(edge);
     }
     /**
      *@returns ingoingEdges
@@ -101,6 +119,19 @@ public class Node<T> {
         return null;
     }
     /**
+     *@returns a Child node of this node connected by edge labled edgeLabel or null if doesn't exists
+     */
+    public Node<T> getChildNodeByLabel(T edgeLable){
+        Iterator<Edge<T>> iter = ingoingEdges.iterator();
+        while (iter.hasNext()){
+            Edge tempEdge =  iter.next();
+            if (tempEdge.getLabel().equals(edgeLable)){
+                return tempEdge.getEndNode();
+            }
+        }
+        return null;
+    }
+    /**
      *@returns label
      */
     public T getLabel() {
@@ -121,8 +152,9 @@ public class Node<T> {
                 System.out.println("duplicate ingoing Edge label");
                 return true;
             }
-        hs.clear();
-        hs.addAll(ingoingEdges);
+        size = outgoingEdges.size();
+            hs.clear();
+        hs.addAll(outgoingEdges);
         outgoingEdges.clear();
         outgoingEdges.addAll(hs);
         if(size != outgoingEdges.size()){
@@ -147,6 +179,7 @@ public class Node<T> {
             System.out.println("duplicate Edge to the same node ");
             return true;
         }
+        size = outLabels.size();
         hs.clear();
         hs.addAll(outLabels);
         outLabels.clear();

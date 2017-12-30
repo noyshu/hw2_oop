@@ -35,13 +35,4 @@ public class Edge<T> {
     public Node<T> getEndNode() {
         return endNode;
     }
-    public void setBeginNode(Node<T> beginNode) {
-        this.beginNode = beginNode;
-    }
-    public void setEndNode(Node<T> endNode) {
-        this.endNode = endNode;
-    }
-    public void setLabel(T label) {
-        this.label = label;
-    }
 }
