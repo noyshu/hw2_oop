@@ -7,47 +7,69 @@ import java.util.List;
 
 /**
  * This class implements generic class that simulate system of pipes and filters,
- * the topology of the pipes & filters systems is represented by bipartite graph
- * T is the label type.
- * the simulator has name simulatorName, the graph that represent the system,
- * and list of all edges.
+ * T is label type.
+ * the simulator has name simulatorName, a graph 
+ * and list of the edges.
  */
 
-public class Simulator<T, O> {
+public class Simulator<T, E> {
 
-    private String simulatorName;
+	private List<T> edgesList;
     private BipartiteGraph<T> graph;
-    private List<T> edgeList;
+    private String simName;
 
     /**
-     * @requires simulatorName != null
+     * @requires simName != null
      * @modifies this
      * @effects Constructs a new simulator.
      */
     public Simulator(String simulatorName) {
-        this.simulatorName = simulatorName;
         graph = new BipartiteGraph<T>(simulatorName);
-        edgeList = new ArrayList<>();
+        edgesList = new ArrayList<>();
+        this.simName = simulatorName;
     }
 
     /**
-     * @return the edge list
+     * @return the list of edges
      */
     public List<T> getEdgeList() {
-        return Collections.unmodifiableList(edgeList);
+        return Collections.unmodifiableList(edgesList);
     }
 
     /**
      * @requires filterLabel!=null, addFilter(filterLabel) and
-     * addPipe(filterLabel) have'nt been called before
-     * @return true if succeeded, false if failed
+     * make sure addPipe(filterLabel) have'nt been called before
+     * @return true if succeeded 
      * @effect add new filter to the graph
      */
-    public boolean addFilter(T filterLabel, Object obj) {
+    public boolean addFilter(T filtLabel, Object obj) {
 
         try {
-            this.graph.addWhiteNode(filterLabel, obj);
+            this.graph.addWhiteNode(filtLabel, obj);
         }
+        catch (Exception exception) {
+            throw new IllegalArgumentException("Illegal arguments");
+        }
+        return true;
+    }
+
+    /**
+     * @requires ((addPipe(parentName) && addFilter(childName)) ||
+     *            (addFilter(parentName) && addPipe(childName))) &&
+     *           
+     *            edgeLabel != null &&
+     *            node named parentName doesnt have outgoing edge labeled edgeLabel
+     *           && node named childName doesnt have incoming edge labeled edgeLabel
+     * @modifies graph named simName
+     * @effects Adds an edge from node parentName to node 
+     *          childName in the graph. The new label
+     *          is the String edgeLabel.
+     */
+    public void addEdge(T parentName, T childName, T edgeLabel){
+        try {
+            this.graph.addEdge(edgeLabel,parentName, childName);
+        }
+
         catch (IllegalArgumentException exception) {
             throw new IllegalArgumentException("Illegal arguments");
         }
@@ -55,12 +77,12 @@ public class Simulator<T, O> {
             throw new UnsupportedOperationException(exception);
         }
 
-        return true;
+        edgesList.add(edgeLabel);
     }
 
     /**
      * @requires pipeLabel!=null, addFilter(pipeLabel) and
-     * addPipe(pipeLabel) have'nt been called before
+     * addPipe with this pipeLabel wasn't called before
      * @return true if succeeded, false if failed
      * @effect add new pipe to the graph
      */
@@ -69,105 +91,94 @@ public class Simulator<T, O> {
             this.graph.addBlackNode(pipeLabel, obj);
         }
 
-        catch (IllegalArgumentException exception) {
+        catch (Exception exception) {
             throw new IllegalArgumentException("Illegal arguments");
-        }
-
-        catch (UnsupportedOperationException exception){
-            throw new UnsupportedOperationException(exception);
         }
 
         return true;
     }
 
+
     /**
-     * @requires ((addPipe(parentName) && addFilter(childName)) ||
-     *            (addFilter(parentName) && addPipe(childName))) &&
-     *            edgeLabel != null &&
-     *            node named parentName has no other outgoing edge labeled edgeLabel
-     *           && node named childName has no other incoming edge labeled edgeLabel
-     * @modifies graph named simName
-     * @effects Adds an edge from the node named parentName to the node named
-     *          childName in the graph. The new edge's label
-     *          is the String edgeLabel.
+     * 
+     * @requires pipeLabel != null && opObj != null
+     * @effects send transaction to the pipe named pipeLabel
      */
-    public void addEdge(T parentName, T childName, T edgeLabel){
-        try {
-            this.graph.addEdge(parentName, childName, edgeLabel);
-        }
-
-        catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Illegal arguments");
-        }
-        catch (UnsupportedOperationException exception){
-            throw new UnsupportedOperationException(exception);
-        }
-
-        edgeList.add(edgeLabel);
-    }
-
-    public void sendTransaction(T pipeLabel, O opObj){
-        if(pipeLabel == null || opObj == null){
+    public void sendTransaction(T pipeLabel, E obj){
+    	
+        if(pipeLabel == null || obj == null){
             throw new IllegalArgumentException("Illegal argument");
         }
 
-        Pipe<T,O> pipe = (Pipe<T, O>) graph.getNodeObj(pipeLabel);
-        pipe.passOperationObj(opObj);
+        Pipe<T,E> pipe = (Pipe<T, E>) graph.getNodeObj(pipeLabel);
+        pipe.passOperationObj(obj);
     }
 
-    public Object getPipeObj(T label){
-        if (label == null){
-            throw new IllegalArgumentException("Illegal argument");
-        }
-
-        return graph.getNodeObj(label);
-    }
-
-    public Object getFilterObj(T label){
+    /**
+     * 
+     * @param filterLabel != null
+     * @return filter node named filterLabel 
+     */
+    public Object getFilterObj(T filterLabel){
         Object obj;
-        if (label == null){
+        if (filterLabel == null){
             throw new IllegalArgumentException("Illegal argument");
         }
 
         try{
-            obj = graph.getNodeObj(label);
+            obj = graph.getNodeObj(filterLabel);
         }
 
-        catch (IllegalArgumentException exception) {
+        catch (Exception exception) {
             throw new IllegalArgumentException("Illegal arguments");
         }
-        catch (UnsupportedOperationException exception){
-            throw new UnsupportedOperationException(exception);
-        }
+        
 
         return obj;
     }
 
     /**
+     * 
+     * @param pipeLabel != null
+     * @return pipe node named pipeLabel
+     */
+    public Object getPipeObj(T pipeLabel){
+        if (pipeLabel == null){
+            throw new IllegalArgumentException("Illegal argument");
+        }
+
+        return graph.getNodeObj(pipeLabel);
+    }
+
+
+    /**
      * @modifies this
-     * @effects runs simulator for a single time slice.
+     * @effects runs simulator for one time slice.
      */
     public void simulate(){
-        List<Object> pipeList = graph.getBlackNodeObj();
-        List<Object> filterList = graph.getWhiteNodeObj();
+    	// extract pipes and filters
+        List<Object> pipesList = graph.getBlackNodeObj();
+        List<Object> filtersList = graph.getWhiteNodeObj();
 
-        for (Object pipeObj: pipeList) {
+        // running over pipes and simulate them
+        for (Object pipeObj: pipesList) {
 
-            Pipe<T,O> pipe = (Pipe)pipeObj;
+            Pipe<T,E> pipe = (Pipe)pipeObj;
             try {
                 pipe.simulate(graph);
             }
-            catch (IllegalArgumentException exception) {
+            catch (Exception exception) {
                 throw new IllegalArgumentException("Illegal arguments");
             }
         }
 
-        for (Object filterObj: filterList) {
-            Filter<T,O> filter = (Filter<T,O>)filterObj;
+        // running over filters and simulates them
+        for (Object filterObj: filtersList) {
+            Filter<T,E> filter = (Filter<T,E>)filterObj;
             try {
                 filter.simulate(graph);
             }
-            catch (IllegalArgumentException exception) {
+            catch (Exception exception) {
                 throw new IllegalArgumentException("Illegal arguments");
             }
         }

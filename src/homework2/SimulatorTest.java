@@ -116,25 +116,6 @@ public class SimulatorTest {
         assertEquals("wrong participant balance", "35.0", String.valueOf(driver.getParticipantBalace("sim2", "P1")));
         assertEquals("wrong participant balance", "20.0", String.valueOf(driver.getParticipantBalace("sim2", "P2")));
 
-        //simulate first round
-        driver.simulate("sim2");
-
-        // check participant balance and channel values
-        assertEquals("wrong transaction values", "", driver.listContents("sim2", "C1"));
-        assertEquals("wrong transaction values", "34.0", driver.listContents("sim2", "C2"));
-        assertEquals("wrong transaction values", "", driver.listContents("sim2", "C3"));
-        assertEquals("wrong participant balance", "0.0", String.valueOf(driver.getParticipantBalace("sim2", "P1")));
-        assertEquals("wrong participant balance", "44.0", String.valueOf(driver.getParticipantBalace("sim2", "P2")));
-
-        //simulate first round
-        driver.simulate("sim2");
-
-        // check participant balance and channel values
-        assertEquals("wrong transaction values", "", driver.listContents("sim2", "C1"));
-        assertEquals("wrong transaction values", "", driver.listContents("sim2", "C2"));
-        assertEquals("wrong transaction values", "", driver.listContents("sim2", "C3"));
-        assertEquals("wrong participant balance", "0.0", String.valueOf(driver.getParticipantBalace("sim2", "P1")));
-        assertEquals("wrong participant balance", "78.0", String.valueOf(driver.getParticipantBalace("sim2", "P2")));
 
     }
 

@@ -58,11 +58,15 @@ public class BipartiteGraphTestDriver {
             System.out.println("graph name or node name is null");
             return;
         }
-        graphs.get(graphName).addBlackNode(nodeName, null);
+        try {
+            graphs.get(graphName).addBlackNode(nodeName, null);
+        }
+        catch (UnsupportedOperationException ex){
+                    System.out.println(ex);
+        }
         return;
     }
 
-    
     /**
      * @requires createGraph(graphName)
      *           && nodeName != null
@@ -82,10 +86,13 @@ public class BipartiteGraphTestDriver {
             System.out.println("graph name or node name is null");
             return;
         }
-        graphs.get(graphName).addWhiteNode(nodeName,null);
-        return;
+        try{
+            graphs.get(graphName).addWhiteNode(nodeName,null);
+        }
+        catch (UnsupportedOperationException ex){
+            System.out.println(ex);
+        }
     }
-
     /**
      * @requires createGraph(graphName)
      *           && ((addBlackNode(parentName) && addWhiteNode(childName))
@@ -111,7 +118,12 @@ public class BipartiteGraphTestDriver {
             System.out.println("graph label doesn't exists");
             return;
         }
-        graphs.get(graphName).addEdge(edgeLabel,parentName,childName);
+        try {
+            graphs.get(graphName).addEdge(edgeLabel, parentName, childName);
+        }
+        catch (UnsupportedOperationException ex){
+    	    System.out.println(ex);
+        }
     	return;
     }
 
@@ -179,13 +191,19 @@ public class BipartiteGraphTestDriver {
     public String listParents(String graphName, String childName) {
         if (graphName == null || childName == null){
             System.out.println("one of the labels is null");
-            return null;
+            return "";
         }
         if(!graphs.containsKey(graphName)){
             System.out.println("graph does not exist");
-            return null;
+            return "";
         }
-        List<String> nameList =  graphs.get(graphName).getNodeParents(childName).stream().map(Node::getLabel).collect(Collectors.toList());
+        List<String> nameList = null;
+        try {
+            nameList = graphs.get(graphName).getNodeParents(childName).stream().map(Node::getLabel).collect(Collectors.toList());
+        }
+        catch (UnsupportedOperationException ex){
+            System.out.println(ex);
+        }
         Collections.sort(nameList);
         return String.join(" ",nameList);
     }
@@ -201,7 +219,7 @@ public class BipartiteGraphTestDriver {
     								   String edgeLabel) {
     	if(graphName == null || parentName == null || edgeLabel == null){
             System.out.println("one of the labels is null");
-            return null;
+            return "";
         }
         return graphs.get(graphName).getChildByEdgeLabel(parentName,edgeLabel);
     }
@@ -216,7 +234,7 @@ public class BipartiteGraphTestDriver {
     									String edgeLabel) {
         if(graphName == null || childName == null || edgeLabel == null){
             System.out.println("one of the labels is null");
-            return null;
+            return "";
         }
         return graphs.get(graphName).getParentByEdgeLabel(childName,edgeLabel);
     	

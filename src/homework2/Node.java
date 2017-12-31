@@ -70,7 +70,8 @@ public class Node<T> {
      * @moddifies adds edge to outgoingEdges
      */
     public void addOutgoingEdge(Edge<T> edge){
-        if(edge == null || containsOutgoingEdge(edge.getLabel())){
+        if(edge == null || containsOutgoingEdge(edge.getLabel()) || isChildNode(edge.getEndNode().getLabel())){
+            System.out.println("error adding out going edge");
             return;
         }
         if(!edge.getBeginNode().getLabel().equals(getLabel())){
@@ -84,7 +85,8 @@ public class Node<T> {
      * @moddifies adds edge to  ingoingEdges
      */
     public void addIngoingEdge(Edge<T> edge){
-        if(edge == null || containsIngoingEdge(edge.getLabel())){
+        if(edge == null || containsIngoingEdge(edge.getLabel()) || isParentNode(edge.getBeginNode().getLabel())){
+            System.out.println("error adding in going edge");
             return;
         }
         if(!edge.getEndNode().getLabel().equals(getLabel())){
@@ -132,7 +134,36 @@ public class Node<T> {
         return null;
     }
     /**
+     *@returns true if the label named nodeLabel is a parent of this
+     */
+    public boolean isParentNode(T ParentLabel){
+        Iterator<Edge<T>> iter = ingoingEdges.iterator();
+        while (iter.hasNext()){
+            Edge tempEdge =  iter.next();
+            if (tempEdge.getBeginNode().getLabel().equals(ParentLabel)){
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
      *@returns label
+     */
+    /**
+     *@returns true if the label named nodeLabel is a parent of this
+     */
+    public boolean isChildNode(T childLabel){
+        Iterator<Edge<T>> iter = outgoingEdges.iterator();
+        while (iter.hasNext()){
+            Edge tempEdge =  iter.next();
+            if (tempEdge.getBeginNode().getLabel().equals(childLabel)){
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     *@returns this.label
      */
     public T getLabel() {
         return label;

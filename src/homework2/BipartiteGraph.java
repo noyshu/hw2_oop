@@ -51,25 +51,22 @@ public class BipartiteGraph<T>{
      * @return true if the Node was succefully added to the graph,false if it wasn't
      *
      */
-   public boolean addBlackNode(T label, Object obj){
+   public void addBlackNode(T label, Object obj) throws UnsupportedOperationException{
         if(nodeLabelExists(label)){
-            System.out.println("trying to add a black Node, but its label already exists in the graph");
-            return false;
+            throw new UnsupportedOperationException("can't add black node");
         }
         Node<T> node = new Node(label,obj);
         blackNodes.put(label,node);
         checkRep();
-        return true;
    }
     /**
      * @requires label != null
      * @return true if the Node was succefully added to the graph,false if it wasn't
      *
      */
-    public boolean addWhiteNode(T label, Object obj){
+    public boolean addWhiteNode(T label, Object obj) throws UnsupportedOperationException{
         if(nodeLabelExists(label)){
-            System.out.println("trying to add a white Node, but its label allready exists in the graph");
-            return false;
+            throw new UnsupportedOperationException("can't add white node");
         }
         Node<T> node = new Node<>(label, obj);
         whiteNodes.put(label,node);
@@ -92,10 +89,10 @@ public class BipartiteGraph<T>{
      * @modifies this
      * @effects Adds an edge from the node parentName to the node childName, label it edgeLabel and set its beginNode and endNode accordingly
      */
-    public  void addEdge(T edgeLabel, T parentLabel, T childLabel){
+    public  void addEdge(T edgeLabel, T parentLabel, T childLabel) throws UnsupportedOperationException{
         checkRep();
        if(childLabel == null || edgeLabel == null || parentLabel == null || parentLabel.equals(childLabel)){
-           return;
+           throw new UnsupportedOperationException("can't add edge");
        }
        Node<T> childNode, parentNode;
        //find if parent is black and child is white or opposite, if not return
@@ -108,11 +105,15 @@ public class BipartiteGraph<T>{
            childNode = blackNodes.get(childLabel);
        }
        else{
-           return;
+           throw new UnsupportedOperationException("in node label exist");
        }
        if (parentNode.containsOutgoingEdge(edgeLabel) || childNode.containsIngoingEdge(edgeLabel)){
-           return;
+           throw new UnsupportedOperationException("edge is in the graph");
        }
+       if (childNode.isParentNode(parentLabel) || parentNode.isChildNode(childLabel)){
+           throw new UnsupportedOperationException("nodes are allready connected");
+       }
+
        Edge<T> edge = new Edge(edgeLabel,parentNode,childNode);
        parentNode.addOutgoingEdge(edge);
        childNode.addIngoingEdge(edge);
@@ -138,10 +139,10 @@ public class BipartiteGraph<T>{
      * @returns  null if the node doesn'e exist else returns a list of all the child nodes of a node labeld nodeLabel
      *
      * */
-    public List<Node<T>> getNodeChildren(T nodeLabel){
+    public List<Node<T>> getNodeChildren(T nodeLabel) throws  UnsupportedOperationException{
         checkRep();
         if(nodeLabel == null || !nodeLabelExists(nodeLabel)){
-            return null;
+            throw new UnsupportedOperationException("node label is null or doesn't exist");
         }
         Map<T, Node<T>> nodes;
         if(blackNodes.containsKey(nodeLabel)){
@@ -164,10 +165,10 @@ public class BipartiteGraph<T>{
      * @returns  null if the node doesn'e exist else returns a list of all the Parents nodes of a node labeld nodeLabel
      *
      * */
-    public List<Node<T>> getNodeParents(T nodeLabel){
+    public List<Node<T>> getNodeParents(T nodeLabel) throws UnsupportedOperationException{
         checkRep();
         if(nodeLabel == null || !nodeLabelExists(nodeLabel)){
-            return null;
+            throw new UnsupportedOperationException("node label is null or doesn't exist");
         }
         Map<T, Node<T>> nodes;
         if(blackNodes.containsKey(nodeLabel)){
@@ -189,10 +190,9 @@ public class BipartiteGraph<T>{
      * @return the name of the parent of childName that is connected by the
      * 		   edge labeled edgeLabel, in the graph
      */
-    public T getParentByEdgeLabel(T childName, T edgeLabel) {
+    public T getParentByEdgeLabel(T childName, T edgeLabel) throws UnsupportedOperationException{
         if(!nodeLabelExists(childName)){
-            System.out.println("child Label does not exist in the graph");
-            return null;
+            throw new UnsupportedOperationException("childName is null or doesn't exist");
         }
         Map<T, Node<T>> nodes;
         if(blackNodes.containsKey(childName)){
@@ -202,8 +202,7 @@ public class BipartiteGraph<T>{
             nodes = whiteNodes;
         }
         if(!nodes.get(childName).containsIngoingEdge(edgeLabel)) {
-            System.out.println("child Label does not have this outGoing Edge");
-            return null;
+            throw new UnsupportedOperationException("child name does not contain this edge");
         }
         return nodes.get(childName).getParentNodeByLabel(edgeLabel).getLabel();
     }
@@ -217,10 +216,9 @@ public class BipartiteGraph<T>{
      * @return the name of the parent of childName that is connected by the
      * 		   edge labeled edgeLabel, in the graph
      */
-    public T getChildByEdgeLabel(T parentName, T edgeLabel) {
+    public T getChildByEdgeLabel(T parentName, T edgeLabel) throws UnsupportedOperationException{
         if(!nodeLabelExists(parentName)){
-            System.out.println("parent Label does not exist in the graph");
-            return null;
+            throw new UnsupportedOperationException("parent label is null or doesn't exist");
         }
         Map<T, Node<T>> nodes;
         if(blackNodes.containsKey(parentName)){
@@ -230,8 +228,7 @@ public class BipartiteGraph<T>{
             nodes = whiteNodes;
         }
         if(!nodes.get(parentName).containsOutgoingEdge(edgeLabel)) {
-            System.out.println("Parent Label does not have this outGoing Edge");
-            return null;
+            throw new UnsupportedOperationException("Parent Label does not have this outGoing Edge");
         }
         return nodes.get(parentName).getChildNodeByLabel(edgeLabel).getLabel();
     }
@@ -243,8 +240,7 @@ public class BipartiteGraph<T>{
      */
     public Node<T> getNode(T nodeLabel) {
         if(!nodeLabelExists(nodeLabel)){
-            System.out.println("Label does not exist in the graph");
-            return null;
+            throw new UnsupportedOperationException("label is null or doesn't exist");
         }
         Map<T, Node<T>> nodes;
         if(blackNodes.containsKey(nodeLabel)){

@@ -42,7 +42,7 @@ public class Channel extends Pipe<String, Transaction> {
     	}
     	
     	// in case there are no children
-    	if (childrenParticipant == null){
+    	if (childrenParticipant.size() == 0){
     		
     		// TODO - is neccassary?
 //            sum = 0;

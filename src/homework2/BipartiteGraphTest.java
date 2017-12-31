@@ -104,6 +104,18 @@ public class BipartiteGraphTest {
 
         //check something from first graph again
         assertEquals("wrong white nodes", "a ab c w1 w2 w3 w4 z", driver.listWhiteNodes("graph1"));
+
+        //add white node with the same name
+        driver.addWhiteNode("graph1", "w4");
+        assertEquals("wrong white nodes", "a ab c w1 w2 w3 w4 z", driver.listWhiteNodes("graph1"));
+
+        //add the same edge again
+        driver.addEdge("graph2", "b1", "w3", "edge2");
+        //add the same edge with different label
+        driver.addEdge("graph2", "b1", "w3", "fail edge");
+        assertEquals("wrong children", "w1 w2 w3 w4", driver.listChildren ("graph2", "b1"));
+        assertEquals("wrong parents", "b1 b2 b3", driver.listParents ("graph2", "w3"));
+
     }
 
 }
